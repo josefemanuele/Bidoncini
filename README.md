@@ -14,5 +14,6 @@ The aim of this project is to develop a network of IOT devices monitoring the us
 
 ## Twin project and media coverage
 
-[Roma Today - I nuovi cestoni di Roma sono eco e tecnologici.] (https://www.romatoday.it/politica/cestoni-getta-carte-intelligenti-roma.html)
+[Roma Today - I nuovi cestoni di Roma sono eco e tecnologici.](https://www.romatoday.it/politica/cestoni-getta-carte-intelligenti-roma.html)
+
 [Comune di Roma - Presentati i nuovi cestoni intelligenti](https://www.comune.roma.it/web/it/notizia/presentati-i-nuovi-cestoni-intelligenti-.page)
