@@ -1,7 +1,7 @@
 # Bidoncini
 
 
-## People
+## Team
 
 [De Risi Simona](https://www.linkedin.com/in/simona-de-risi-5a8087234/)
 
