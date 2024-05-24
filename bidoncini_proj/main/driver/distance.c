@@ -9,8 +9,10 @@
 
 #define PING_TIMEOUT 6000
 #define SPEED_OF_SOUND_AT_22C_CM_US 0.0343 // Speed of sound in cm/us at 0 degrees Celsius
-#define TRIG_PIN GPIO_NUM_8
-#define ECHO_PIN GPIO_NUM_9
+#define LOW 0
+#define HIGH 1
+#define TRIG_PIN GPIO_NUM_2
+#define ECHO_PIN GPIO_NUM_3
 
 #define timeout_expired(start, len) ((esp_timer_get_time() - (start)) >= (len))
 
@@ -56,7 +58,7 @@ void measure() {
   }
 
   int64_t time_us = time - echo_start;
-  ESP_LOGI(TAG_DISTANCE, "time_us = %d", time_us);
+  ESP_LOGI(TAG_DISTANCE, "time_us = %lld", time_us);
 
   int distance = (time_us) * SPEED_OF_SOUND_AT_22C_CM_US /2;
 
