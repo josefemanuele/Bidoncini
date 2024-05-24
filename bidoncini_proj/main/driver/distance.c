@@ -14,6 +14,8 @@
 
 #define timeout_expired(start, len) ((esp_timer_get_time() - (start)) >= (len))
 
+char *TAG_DISTANCE = "DISTANCE SENSOR";
+
 long duration;
 float distanceCm;
 
@@ -22,7 +24,9 @@ void setup() {
   gpio_set_direction(ECHO_PIN, GPIO_MODE_INPUT);
 }
 
-void loop() {
+
+
+void measure() {
   gpio_set_level(TRIG_PIN, LOW);
   ets_delay_us(2);
   // Sets the trigPin on HIGH state for 10 micro seconds
@@ -30,16 +34,16 @@ void loop() {
   ets_delay_us(10);
   gpio_set_level(TRIG_PIN, LOW);
   if (gpio_get_level(ECHO_PIN)){
-    printf("EEROR");
+    ESP_LOGI(TAG_DISTANCE, "ERROR, echo_pin remained high");
     return;
   }
 
 
-    // Wait for echo
+  // Wait for echo
   int64_t start = esp_timer_get_time();
   while (!gpio_get_level(ECHO_PIN)){
     if(timeout_expired(start, PING_TIMEOUT)){
-      printf("ERROR TIMEOUT");
+      ESP_LOGI(TAG_DISTANCE, "ERROR TIMEOUT expired");
       return;
     }
   }
@@ -52,14 +56,13 @@ void loop() {
   }
 
   int64_t time_us = time - echo_start;
-  printf("time_us = %d\n", time_us);
+  ESP_LOGI(TAG_DISTANCE, "time_us = %d", time_us);
 
   int distance = (time_us) * SPEED_OF_SOUND_AT_22C_CM_US /2;
 
   
   // Prints the distance in the Serial Monitor
-  printf("Distance (cm): ");
-  printf("%d\n", distance);
+  ESP_LOGI(TAG_DISTANCE, "Distance (cm): %d\n", distance);
   
   vTaskDelay(pdMS_TO_TICKS(1000));
 }
