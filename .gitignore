@@ -1,3 +1,5 @@
 bidoncini_proj/build/
 bidoncini_proj/managed_components/
+**/build/
+**/managed_components/
 .DS_Store
