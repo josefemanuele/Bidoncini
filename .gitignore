@@ -2,4 +2,7 @@ bidoncini_proj/build/
 bidoncini_proj/managed_components/
 **/build/
 **/managed_components/
+project/central_server/connect_aws
+project/central_server/certs
+project/gateway/main/certs
 .DS_Store
