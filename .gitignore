@@ -5,4 +5,7 @@ bidoncini_proj/managed_components/
 project/central_server/connect_aws
 project/central_server/certs
 project/gateway/main/certs
+project/sdkconfig.old
+project/dependencies.lock
+project/blink
 .DS_Store
