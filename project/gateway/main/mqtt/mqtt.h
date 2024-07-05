@@ -1,7 +1,7 @@
 #include "mqtt_client.h"
 
 #define MQTT_BROKER "mqtts://test.mosquitto.org:8883"
-#define MQTT_TOPIC_OUTPUT "bidoncini/distances"
+#define MQTT_TOPIC_OUTPUT "esp/bidoncini/distances"
 #define MQTT_TOPIC_INPUT "bidoncini/input"
 
 /**

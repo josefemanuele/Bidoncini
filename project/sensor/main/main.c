@@ -2,48 +2,56 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include <esp_err.h>
+#include <time.h>
+#include "sys/time.h"
 
 #include "driver/distance.c"
-#include "ra01s.h"
+#include "lora/lora.c"
 
 char *ID = "ABC123";
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
 
 
-void initialize_lora(){
-    uint8_t spreadingFactor = 7;
-	uint8_t bandwidth = 4;
-	uint8_t codingRate = 1;
-	uint16_t preambleLength = 8;
-	uint8_t payloadLen = 0;
-	bool crcOn = true;
-	bool invertIrq = false;
-    LoRaConfig(spreadingFactor, bandwidth, codingRate, preambleLength, payloadLen, crcOn, invertIrq);
+void set_time_manual(int year, int month, int day, int hour, int minute, int second)
+{
+    struct tm tm;
+    time_t t;
+
+    // Time information
+    tm.tm_year = year - 1900;
+    tm.tm_mon = month - 1;
+    tm.tm_mday = day;
+    tm.tm_hour = hour;
+    tm.tm_min = minute;
+    tm.tm_sec = second;
+    tm.tm_isdst = -1;
+
+    // Convert struct tm in time_t
+    t = mktime(&tm);
+
+    // Set up the sys time
+    struct timeval now = { .tv_sec = t };
+    settimeofday(&now, NULL);
 }
 
 
+/**
+ * Principal task of the device. It measures the fullness of the trash bin, sends the value to the gateway via LoRa,
+ * and goes into deep sleep
+*/
 void task_sensing(void *pvParameters)
 {
-    int distance = measure();
+	ESP_LOGI(TAG_MAIN_SENSOR, "Start");
+	while(1){
+		//measure the distance
+		int distance = measure();
+		//send the info via LoRa
+		lora_message_send(ID, distance);
 
-    ESP_LOGI(pcTaskGetName(NULL), "Start");
-	uint8_t buf[256]; // Maximum Payload size of SX1261/62/68 is 255
-	TickType_t nowTick = xTaskGetTickCount();
-    time_t clk = time(NULL);
-	int txLen = sprintf((char *)buf, "{ID: %s, distance: %d, datetime: %s}", ID, distance, ctime(&clk));
-	ESP_LOGI(pcTaskGetName(NULL), "%d byte packet sent...", txLen);
-
-	// Wait for transmission to complete
-	if (LoRaSend(buf, txLen, SX126x_TXMODE_SYNC) == false) {
-		ESP_LOGE(pcTaskGetName(NULL),"LoRaSend fail");
+		//DEEP SLEEP
+		vTaskDelay(1000);
 	}
-
-	int lost = GetPacketLost();
-	if (lost != 0) {
-		ESP_LOGW(pcTaskGetName(NULL), "%d packets lost", lost);
-	}
-
-	//DEEP SLEEP
 }
 
 
@@ -52,6 +60,8 @@ void app_main(void)
     setup_distance_sensor();
     
     initialize_lora();
+
+	set_time_manual(2024, 7, 5, 11, 30, 0);
     
     xTaskCreate(&task_sensing, "distance", 1024*4, NULL, 5, NULL);
 }

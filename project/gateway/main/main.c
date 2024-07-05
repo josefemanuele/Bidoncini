@@ -1,12 +1,20 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_system.h"
+#include "nvs_flash.h"
+#include "esp_event.h"
 #include "esp_log.h"
+#include "mqtt_client.h"
 
 #include "wifi/wifi.h"
 #include "mqtt/mqtt.h"
-#include "ra01s.h"
+#include "../../components/ra01s/ra01s.h"
 
+#define LORA_FREQUENCY 868300000
 char *TAG_MAIN = "MAIN";
 
 /**
@@ -37,6 +45,8 @@ void  initialization(){
 	  uint8_t payloadLen = 0;
 	  bool crcOn = true;
 	  bool invertIrq = false;
+    LoRaInit();
+	  LoRaBegin(LORA_FREQUENCY, 22, 3.3, true);
     LoRaConfig(spreadingFactor, bandwidth, codingRate, preambleLength, payloadLen, crcOn, invertIrq);
 }
 
@@ -46,9 +56,9 @@ void  initialization(){
 void task_receiver_lora(void *pvParameters)
 {
 	ESP_LOGI(pcTaskGetName(NULL), "Start");
-	uint8_t buf[256]; // Maximum Payload size of SX1261/62/68 is 255
+	u_int8_t buf[256]; // Maximum Payload size of SX1261/62/68 is 255
 	while(1) {
-		uint8_t rxLen = LoRaReceive(buf, sizeof(buf));
+		u_int8_t rxLen = LoRaReceive(buf, sizeof(buf));
 		if ( rxLen > 0 ) { 
 			ESP_LOGI(pcTaskGetName(NULL), "%d byte packet received:[%.*s]", rxLen, rxLen, buf);
 
@@ -56,9 +66,9 @@ void task_receiver_lora(void *pvParameters)
 			GetPacketStatus(&rssi, &snr);
 			ESP_LOGI(pcTaskGetName(NULL), "rssi=%d[dBm] snr=%d[dB]", rssi, snr);
       //publish on MQTT
-      mqtt_publish(*buf);
+      mqtt_publish((char *)buf);
 		}
-		vTaskDelay(1); // Avoid WatchDog alerts
+		vTaskDelay(10); // Avoid WatchDog alerts
 	}
 }
 
