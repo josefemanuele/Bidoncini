@@ -8,4 +8,6 @@ project/gateway/main/certs
 project/sdkconfig.old
 project/dependencies.lock
 project/blink
+scripts/current.txt
+scripts/plot.png
 .DS_Store
