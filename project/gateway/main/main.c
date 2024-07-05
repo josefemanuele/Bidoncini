@@ -12,6 +12,7 @@
 
 #include "wifi/wifi.h"
 #include "mqtt/mqtt.h"
+#include "lora/lora.h"
 #include "../../components/ra01s/ra01s.h"
 
 #define LORA_FREQUENCY 868300000
@@ -38,16 +39,7 @@ void  initialization(){
     mqtt_app_start();
     ESP_LOGI(TAG_MAIN, "MQTT initialized");
     //initialize LoRa
-    uint8_t spreadingFactor = 7;
-	  uint8_t bandwidth = 4;
-	  uint8_t codingRate = 1;
-	  uint16_t preambleLength = 8;
-	  uint8_t payloadLen = 0;
-	  bool crcOn = true;
-	  bool invertIrq = false;
-    LoRaInit();
-	  LoRaBegin(LORA_FREQUENCY, 22, 3.3, true);
-    LoRaConfig(spreadingFactor, bandwidth, codingRate, preambleLength, payloadLen, crcOn, invertIrq);
+   initialize_lora();
 }
 
 /*
@@ -55,18 +47,13 @@ void  initialization(){
 */
 void task_receiver_lora(void *pvParameters)
 {
-	ESP_LOGI(pcTaskGetName(NULL), "Start");
+	ESP_LOGI(TAG_MAIN, "Start");
 	u_int8_t buf[256]; // Maximum Payload size of SX1261/62/68 is 255
 	while(1) {
-		u_int8_t rxLen = LoRaReceive(buf, sizeof(buf));
-		if ( rxLen > 0 ) { 
-			ESP_LOGI(pcTaskGetName(NULL), "%d byte packet received:[%.*s]", rxLen, rxLen, buf);
-
-			int8_t rssi, snr;
-			GetPacketStatus(&rssi, &snr);
-			ESP_LOGI(pcTaskGetName(NULL), "rssi=%d[dBm] snr=%d[dB]", rssi, snr);
-      //publish on MQTT
-      mqtt_publish((char *)buf);
+    //wait to receive a message
+    lora_receive_messages(buf);
+    //publish on MQTT
+    mqtt_publish((char *)buf);
 		}
 		vTaskDelay(10); // Avoid WatchDog alerts
 	}

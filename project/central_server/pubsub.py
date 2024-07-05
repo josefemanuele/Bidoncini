@@ -12,8 +12,10 @@ import paho.mqtt.client as mqtt_paho
 import datetime
 import ssl
 
-
+#----------------------------------------------------------------
 #-------- functions for the local mqtt connection (paho) --------
+#----------------------------------------------------------------
+
 #callback when a subscription is attempted
 def on_subscribe_paho(client, userdata, mid, reason_code_list, properties):
     # Since we subscribed only for a single channel, reason_code_list contains
@@ -33,13 +35,23 @@ def on_unsubscribe_paho(client, userdata, mid, reason_code_list, properties):
 
 #callback when a message is received
 def on_message_paho(client, userdata, message):
-    print(message.topic + " " + str(message.payload))
-    print("Publishing message to topic '{}': {}".format(message_topic, message.payload))
+    original_string = message.payload.decode('utf-8', errors='ignore')
+
+    # Trova l'indice dell'ultimo carattere '}'
+    index = original_string.find('}')
+
+    # Taglia la stringa fino a (e inclusa) l'ultima occorrenza di '}'
+ 
+# ct stores current time
+    ct = datetime.datetime.now()
+    cleaned_string = original_string[:index] + ", \"timestamp\": \"" + str(ct) + "\"}" #add timestamp entry to the JSON
+    print(message.topic + " " + cleaned_string)
+    print("Publishing message to topic '{}': {}".format(message_topic, cleaned_string))
     #message_json = json.dumps(message.payload)
     #PUBLISH ON AWS
     mqtt_connection_aws.publish(
     topic=message_topic,
-    payload=message.payload,
+    payload=cleaned_string,
     qos=mqtt.QoS.AT_LEAST_ONCE)
 
 #callback when a connection is attempted
@@ -48,10 +60,12 @@ def on_connect_paho(client, userdata, flags, reason_code, properties):
         print(f"Failed to connect: {reason_code}. loop_forever() will retry connection")
     else:
         print("connected to bidoncini")
-        client.subscribe("bidoncini/distances", qos=1)
+        client.subscribe("esp/bidoncini/distances", qos=1)
 
 
+#----------------------------------------------------------------
 # ---------- functions for the mqtt connection to AWS ---------
+#----------------------------------------------------------------
 # This sample uses the Message Broker for AWS IoT to send and receive messages
 # through an MQTT connection. On startup, the device connects to the server,
 # subscribes to a topic, and begins publishing messages to that topic.
@@ -116,7 +130,9 @@ def on_connection_closed(connection, callback_data):
     print("Connection closed")
 
 
-
+#----------------------------------------------------------------
+#-------------------------- main --------------------------------
+#----------------------------------------------------------------
 if __name__ == '__main__':
     # Create the proxy options if the data is present in cmdData
     proxy_options = None
@@ -166,7 +182,7 @@ if __name__ == '__main__':
     subscribe_result = subscribe_future.result()
     print("Subscribed with {}".format(str(subscribe_result['qos'])))
 
-    #setup the local MQTT
+    #setup the local MQTT to receive messages from the gateways
     mqttc = mqtt_paho.Client(mqtt_paho.CallbackAPIVersion.VERSION2)
     mqttc.on_connect = on_connect_paho
     mqttc.on_message = on_message_paho
@@ -176,9 +192,9 @@ if __name__ == '__main__':
     mqttc._connect_timeout = 200
 
     mqttc.tls_set(
-    ca_certs="../../certs/mosquitto.org.crt",
-    certfile="../../certs/client.crt",
-    keyfile="../../certs/client.key",
+    ca_certs="../certs/mosquitto.org.crt",
+    certfile="../certs/client.crt",
+    keyfile="../certs/client.key",
     cert_reqs=ssl.CERT_REQUIRED,
     tls_version=ssl.PROTOCOL_TLS,
     ciphers=None
