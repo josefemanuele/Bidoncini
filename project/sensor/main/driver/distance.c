@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/adc.h"
+#include "driver/gpio.h"
 #include <esp_timer.h>
 #include <inttypes.h>
+#include "esp_log.h"
+#include <esp_err.h>
+
+#include "distance.h"
 
 char *TAG_DISTANCE = "DISTANCE SENSOR";
 
@@ -29,7 +33,7 @@ int measure() {
   gpio_set_level(TRIG_PIN, LOW);
   if (gpio_get_level(ECHO_PIN)){
     ESP_LOGI(TAG_DISTANCE, "ERROR, echo_pin remained high");
-    return;
+    return 0;
   }
 
   // Wait for echo
@@ -37,7 +41,7 @@ int measure() {
   while (!gpio_get_level(ECHO_PIN)){
     if(timeout_expired(start, PING_TIMEOUT)){
       ESP_LOGI(TAG_DISTANCE, "ERROR TIMEOUT expired");
-      return;
+      return 0;
     }
   }
 

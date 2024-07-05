@@ -819,10 +819,10 @@ void WaitForIdle(unsigned long timeout)
 {
     //unsigned long start = millis();
     TickType_t start = xTaskGetTickCount();
-    delayMicroseconds(1);
+    esp_rom_delay_us(1);
     while(xTaskGetTickCount() - start < (timeout/portTICK_PERIOD_MS)) {
         if (gpio_get_level(SX126x_BUSY) == 0) break;
-        delayMicroseconds(1);
+        esp_rom_delay_us(1);
     }
     if (gpio_get_level(SX126x_BUSY)) {
         ESP_LOGE(TAG, "WaitForIdle Timeout timeout=%lu", timeout);
