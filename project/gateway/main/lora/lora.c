@@ -23,9 +23,9 @@ void initialize_lora(){
     LoRaConfig(spreadingFactor, bandwidth, codingRate, preambleLength, payloadLen, crcOn, invertIrq);
 }
 
-void lora_receive_messages(uint8_t *buf){
+void lora_receive_messages(uint8_t* buf, int len){
     while(1){
-		u_int8_t rxLen = LoRaReceive(buf, sizeof(buf));
+		u_int8_t rxLen = LoRaReceive(buf, len);
 		if ( rxLen > 0 ) { //if message is received
 			ESP_LOGI(TAG_LORA, "%d byte packet received:[%.*s]", rxLen, rxLen, buf);
 

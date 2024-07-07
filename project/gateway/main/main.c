@@ -51,12 +51,14 @@ void task_receiver_lora(void *pvParameters)
 	u_int8_t buf[256]; // Maximum Payload size of SX1261/62/68 is 255
 	while(1) {
     //wait to receive a message
-    lora_receive_messages(buf);
+    lora_receive_messages(buf, sizeof(buf));
+
     //publish on MQTT
     mqtt_publish((char *)buf);
-		}
-		vTaskDelay(10); // Avoid WatchDog alerts
+
+    vTaskDelay(10); // Avoid WatchDog alerts
 	}
+		
 }
 
 
