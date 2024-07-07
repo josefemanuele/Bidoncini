@@ -5,12 +5,13 @@
 #include <esp_err.h>
 #include <time.h>
 #include "sys/time.h"
-
 #include "driver/distance.c"
 #include "lora/lora.c"
+#include "esp_sleep.h"
 
 char *ID = "ABC123";
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
+int WAKEUP_DELAY_S = 3;
 
 
 void set_time_manual(int year, int month, int day, int hour, int minute, int second)
@@ -40,28 +41,35 @@ void set_time_manual(int year, int month, int day, int hour, int minute, int sec
  * Principal task of the device. It measures the fullness of the trash bin, sends the value to the gateway via LoRa,
  * and goes into deep sleep
 */
-void task_sensing(void *pvParameters)
+void task_sensing()
 {
-	ESP_LOGI(TAG_MAIN_SENSOR, "Start");
-	while(1){
-		//measure the distance
-		int distance = measure();
-		//send the info via LoRa
-		lora_message_send(ID, distance);
-
-		//DEEP SLEEP
-		vTaskDelay(1000);
-	}
+    //measure the distance
+    int distance = measure();
+    //send the info via LoRa
+    lora_message_send(ID, distance);
 }
 
+void deep_sleep(void)
+{
+    // Set deep sleep timer.
+    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_DELAY_S * 1000000));
+    ESP_LOGI(TAG, "Going to deep sleep for %d seconds.", WAKEUP_DELAY_S);
+    // Enter deep sleep.
+    esp_deep_sleep_start();
+}
 
 void app_main(void)
 {
-    setup_distance_sensor();
-    
-    initialize_lora();
+    while (1)
+    {
+        setup_distance_sensor();
+        
+        initialize_lora();
 
-	set_time_manual(2024, 7, 5, 11, 30, 0);
-    
-    xTaskCreate(&task_sensing, "distance", 1024*4, NULL, 5, NULL);
+        set_time_manual(2024, 7, 5, 11, 30, 0);
+        
+        task_sensing();
+
+        deep_sleep();
+    }
 }

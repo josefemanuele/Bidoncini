@@ -26,10 +26,10 @@ void setup_distance_sensor() {
 
 int measure() {
   gpio_set_level(TRIG_PIN, LOW);
-  ets_delay_us(2);
+  esp_rom_delay_us(2);
   // Sets the trigPin on HIGH state for 10 micro seconds
   gpio_set_level(TRIG_PIN, HIGH);
-  ets_delay_us(10);
+  esp_rom_delay_us(10);
   gpio_set_level(TRIG_PIN, LOW);
   if (gpio_get_level(ECHO_PIN)){
     ESP_LOGI(TAG_DISTANCE, "ERROR, echo_pin remained high");
