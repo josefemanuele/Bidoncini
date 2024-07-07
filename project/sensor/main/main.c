@@ -11,30 +11,11 @@
 
 char *ID = "ABC123";
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
-int WAKEUP_DELAY_S = 3;
-
-
-void set_time_manual(int year, int month, int day, int hour, int minute, int second)
-{
-    struct tm tm;
-    time_t t;
-
-    // Time information
-    tm.tm_year = year - 1900;
-    tm.tm_mon = month - 1;
-    tm.tm_mday = day;
-    tm.tm_hour = hour;
-    tm.tm_min = minute;
-    tm.tm_sec = second;
-    tm.tm_isdst = -1;
-
-    // Convert struct tm in time_t
-    t = mktime(&tm);
-
-    // Set up the sys time
-    struct timeval now = { .tv_sec = t };
-    settimeofday(&now, NULL);
-}
+int FREQUENCY_ANALYSIS_SLEEP_S = 10;
+RTC_DATA_ATTR int WAKEUP_DELAY_S;
+RTC_DATA_ATTR int MEASUREMENT_NUMBER = 0;
+RTC_DATA_ATTR bool need_frequency_analysis = true;
+int HEIGHT_BIN_CM = 40;
 
 
 /**
@@ -53,9 +34,23 @@ void deep_sleep(void)
 {
     // Set deep sleep timer.
     ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_DELAY_S * 1000000));
-    ESP_LOGI(TAG, "Going to deep sleep for %d seconds.", WAKEUP_DELAY_S);
+    ESP_LOGI(TAG_MAIN_SENSOR, "Going to deep sleep for %d seconds.", WAKEUP_DELAY_S);
     // Enter deep sleep.
     esp_deep_sleep_start();
+}
+
+void frequency_analysis(){
+    while (1){
+        int distance = measure();
+        MEASUREMENT_NUMBER++;
+        if ((distance/HEIGHT_BIN_CM)*100 <= 10){
+            WAKEUP_DELAY_S = (MEASUREMENT_NUMBER * WAKEUP_DELAY_S) / 4;
+            break;
+        }
+        else {
+            deep_sleep();
+        }  
+    }
 }
 
 void app_main(void)
@@ -66,7 +61,10 @@ void app_main(void)
         
         initialize_lora();
 
-        set_time_manual(2024, 7, 5, 11, 30, 0);
+        if(need_frequency_analysis){
+            WAKEUP_DELAY_S = FREQUENCY_ANALYSIS_SLEEP_S;
+            frequency_analysis();
+        }
         
         task_sensing();
 
