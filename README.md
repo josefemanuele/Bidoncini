@@ -62,6 +62,7 @@ The central server will receive the packets from the various gateways, and then 
 AWS IoT Core has a rule that takes the packets and save the triples (ID, distance, timestamp) inside a DynamoDB.
 With all the values in the database then it is possible to compute the optimal path for the trash collection.
 
+## Security
 
 ## Frequency analysis
 *How to understand which is the right time interval between measurements?* This is a tough question because on one hand we want to take measurements very often to have an higher granularity and so more probability to collect the trash at the right time, on the other hand we want to measure the less possible to save energy.
