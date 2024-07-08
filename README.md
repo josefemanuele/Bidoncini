@@ -72,6 +72,7 @@ With all the values in the database then it is possible to compute the optimal p
 ## Credits
 
 [Energy harvesting tutorial](https://randomnerdtutorials.com/power-esp32-esp8266-solar-panels-battery-level-monitoring/
+[Push button logic](https://esp32tutorials.com/esp32-push-button-esp-idf-digital-input/?authuser=0)
 
 
 
