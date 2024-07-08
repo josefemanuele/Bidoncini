@@ -11,12 +11,12 @@
 
 char *ID = "ABC123";        //ID of the bin
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
-int FREQUENCY_ANALYSIS_SLEEP_S = 10;    //time between measurements in the frequency analysis
-RTC_DATA_ATTR int WAKEUP_DELAY_S;       //time between measurements
+RTC_DATA_ATTR int WAKEUP_DELAY_S = 10;       //time between measurements
 RTC_DATA_ATTR int MEASUREMENT_NUMBER = 0;       //number of measurement since last time has been emptied
 int EXPECTED_MEASUREMENTS = 4;        //expected number of measurement to do until trash bin is full
-RTC_DATA_ATTR bool need_frequency_analysis = true;
 int HEIGHT_BIN_CM = 40;
+
+#define i_am_full(distance) (((distance/HEIGHT_BIN_CM)*100) <= (10)) //checks if the bin is full (at 90%)
 
 
 /**
@@ -30,9 +30,9 @@ void task_sensing()
     MEASUREMENT_NUMBER ++;
     //send the info via LoRa
     lora_message_send(ID, distance);
-    //check if the bin has fullen up faster than what expected
-    if (MEASUREMENT_NUMBER <= EXPECTED_MEASUREMENTS / 2){
-        need_frequency_analysis = true;
+    //check if the bin has fullen up faster (or later) than what expected and adjust sleep time
+    if (i_am_full(distance) && ((MEASUREMENT_NUMBER <= EXPECTED_MEASUREMENTS / 2) || (MEASUREMENT_NUMBER >= EXPECTED_MEASUREMENTS * 2))){
+        WAKEUP_DELAY_S = (MEASUREMENT_NUMBER * WAKEUP_DELAY_S) / EXPECTED_MEASUREMENTS;
     }
 
 }
@@ -56,6 +56,17 @@ void frequency_analysis(){
             deep_sleep();
         }  
     }
+    
+/**
+ * performs the deep sleep for a number of seconds indicated by WAKEUP_DELAY_S
+*/
+void deep_sleep(void)
+{
+    // Set deep sleep timer.
+    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_DELAY_S * 1000000));
+    ESP_LOGI(TAG_MAIN_SENSOR, "Going to deep sleep for %d seconds.", WAKEUP_DELAY_S);
+    // Enter deep sleep.
+    esp_deep_sleep_start();
 }
 
 void app_main(void)
@@ -66,11 +77,6 @@ void app_main(void)
         setup_distance_sensor();
         
         initialize_lora();
-
-        if(need_frequency_analysis){
-            WAKEUP_DELAY_S = FREQUENCY_ANALYSIS_SLEEP_S;    //set the time between measurement to the value for the  frequency analysis
-            frequency_analysis();
-        }
         
         task_sensing();
 

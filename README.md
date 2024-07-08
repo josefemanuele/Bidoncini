@@ -64,12 +64,14 @@ With all the values in the database then it is possible to compute the optimal p
 
 
 ## Frequency analysis
-How to understand which is the right time interval between measurements? This is a tough question because on one hand we want to measure the fullness very often to have an higher granularity and so more probability to collect the trash at the right time, on the other hand we want to measure the less possible to save energy.
-Furthermore the frequency of measurements depend also on the area. We expect that a trash bin in the center of Rome or in a very populated area fulls faster than a trash bin more isolated.
-For this reason we implemented a  "frequency analysis" in which the bin sets autonomously its time between measurements. Practically the bins during the phase of frequency analysis does measurements every 30 minutes (which is way faster of the expected time of whatever bin), it counts how many measurements it does before being full. Once the bin is full it sets the time between measurements as 1/4 of the total time.
-What if the filling speed changes overtime? We check how many measurements have been done since the last emptying. If the bin has fullen up faster than expected we redo the frequency analysis. If the bin has fullen up slower than expected, we can use those measurements as reference for the frequency analysis and so we directly update the sleep time.
-(Obvioulsy to detect an acceleration or a decelaration in the filling speed there are some tolerance  margins).
-To let the sensor know that it has been emptied the operator will press a button that will wake up the device hence the sensor will reset the number of measurements.
+*How to understand which is the right time interval between measurements?* This is a tough question because on one hand we want to take measurements very often to have an higher granularity and so more probability to collect the trash at the right time, on the other hand we want to measure the less possible to save energy.
+Furthermore the frequency of measurements depends also on the area. We expect that a trash bin in the center of Rome or in a very populated area fulls faster than a trash bin more isolated.
+
+For this reason we implemented a functionality on the device in which the bin sets autonomously its time between measurements. Practically the first time that the sensor is activated, it will do measurements every 30 minutes (which is way faster of the expected time of whatever bin), it counts how many measurements it does before being full. Once the bin is full it sets the time between measurements as 1/4 of the total time.
+
+*But the filling speed can change overtime!* For this reason the device will continuously check how many measurements it has done since the last emptying  and until being full. If the bin has fullen up faster or slower than expected we update the sleep time between measurements. (Obvioulsy to detect an acceleration or a decelaration in the filling speed there are some tolerance  margins).
+
+To let the sensor know that it has been emptied, the operator will press a button that will wake up the device, hence the sensor will reset the number of measurements.
 
 ## Energy consumption
 
