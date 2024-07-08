@@ -9,11 +9,12 @@
 #include "lora/lora.c"
 #include "esp_sleep.h"
 
-char *ID = "ABC123";
+char *ID = "ABC123";        //ID of the bin
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
-int FREQUENCY_ANALYSIS_SLEEP_S = 10;
-RTC_DATA_ATTR int WAKEUP_DELAY_S;
-RTC_DATA_ATTR int MEASUREMENT_NUMBER = 0;
+int FREQUENCY_ANALYSIS_SLEEP_S = 10;    //time between measurements in the frequency analysis
+RTC_DATA_ATTR int WAKEUP_DELAY_S;       //time between measurements
+RTC_DATA_ATTR int MEASUREMENT_NUMBER = 0;       //number of measurement since last time has been emptied
+RTC_DATA_ATTR int EXPECTED_MEASUREMENTS;        //expected number of measurement to do until trash bin is full
 RTC_DATA_ATTR bool need_frequency_analysis = true;
 int HEIGHT_BIN_CM = 40;
 
@@ -26,10 +27,19 @@ void task_sensing()
 {
     //measure the distance
     int distance = measure();
+    MEASUREMENT_NUMBER ++;
     //send the info via LoRa
     lora_message_send(ID, distance);
+    //check if the bin has fullen up faster than what expected
+    if (MEASUREMENT_NUMBER <= EXPECTED_MEASUREMENTS / 2){
+        need_frequency_analysis = true;
+    }
+
 }
 
+/**
+ * performs the deep sleep for a number of seconds indicated by WAKEUP_DELAY_S
+*/
 void deep_sleep(void)
 {
     // Set deep sleep timer.
@@ -39,12 +49,20 @@ void deep_sleep(void)
     esp_deep_sleep_start();
 }
 
+/**
+ * Performs a "frequency analysis". It checks the fullness of the bin every  30 minutes and sees how many time it takes
+ * for the trash bin to be 90% full. It updates the frequency to which take the measurements accordingly
+*/
 void frequency_analysis(){
     while (1){
-        int distance = measure();
+        int distance = 1;
         MEASUREMENT_NUMBER++;
+        //check if the bin is at least 90% full
         if ((distance/HEIGHT_BIN_CM)*100 <= 10){
-            WAKEUP_DELAY_S = (MEASUREMENT_NUMBER * WAKEUP_DELAY_S) / 4;
+            WAKEUP_DELAY_S = (MEASUREMENT_NUMBER * WAKEUP_DELAY_S) / 4;     //update the time interval between measurements
+            EXPECTED_MEASUREMENTS = MEASUREMENT_NUMBER;     //update the expected number of measurements until the bin is full
+            need_frequency_analysis = false;
+            MEASUREMENT_NUMBER = 0;
             break;
         }
         else {
@@ -62,7 +80,7 @@ void app_main(void)
         initialize_lora();
 
         if(need_frequency_analysis){
-            WAKEUP_DELAY_S = FREQUENCY_ANALYSIS_SLEEP_S;
+            WAKEUP_DELAY_S = FREQUENCY_ANALYSIS_SLEEP_S;    //set the time between measurement to the value for the  frequency analysis
             frequency_analysis();
         }
         
