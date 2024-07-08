@@ -7,7 +7,7 @@
 #include "sys/time.h"
 #include "driver/distance.c"
 #include "lora/lora.c"
-#include "esp_sleep.h"
+#include "headers/sleep.h"
 
 char *ID = "ABC123";        //ID of the bin
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
@@ -38,18 +38,6 @@ void task_sensing()
 }
 
 /**
- * performs the deep sleep for a number of seconds indicated by WAKEUP_DELAY_S
-*/
-void deep_sleep(void)
-{
-    // Set deep sleep timer.
-    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_DELAY_S * 1000000));
-    ESP_LOGI(TAG_MAIN_SENSOR, "Going to deep sleep for %d seconds.", WAKEUP_DELAY_S);
-    // Enter deep sleep.
-    esp_deep_sleep_start();
-}
-
-/**
  * Performs a "frequency analysis". It checks the fullness of the bin every  30 minutes and sees how many time it takes
  * for the trash bin to be 90% full. It updates the frequency to which take the measurements accordingly
 */
@@ -72,6 +60,7 @@ void frequency_analysis(){
 
 void app_main(void)
 {
+    setup_deep_sleep();
     while (1)
     {
         setup_distance_sensor();
