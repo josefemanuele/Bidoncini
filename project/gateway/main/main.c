@@ -9,10 +9,9 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
-
-#include "wifi/wifi.h"
-#include "mqtt/mqtt.h"
-#include "lora/lora.h"
+#include "include/wifi.h"
+#include "include/mqtt.h"
+#include "include/lora.h"
 #include "../../components/ra01s/ra01s.h"
 
 #define LORA_FREQUENCY 868300000

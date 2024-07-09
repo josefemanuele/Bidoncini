@@ -5,7 +5,7 @@
 #include <esp_err.h>
 #include <time.h>
 
-#include "lora.h"
+#include "include/lora.h"
 #include "../../../components/ra01s/ra01s.h"
 
 char *TAG_LORA = "LORA_MODULE";
