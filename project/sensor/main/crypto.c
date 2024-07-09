@@ -1,12 +1,15 @@
-#include "headers/crypto.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "wolfssl/wolfcrypt/random.h"
-#include "wolfssl/wolfcrypt/ecc.h"
 #include "esp_log.h"
-
+/* WOLFSSL includes. */
+#define WOLFSSL_ESPIDF
+#define WOLFSSL_USER_SETTINGS
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/curve25519.h>
+#include <wolfssl/wolfcrypt/ecc.h>
 #include "headers/crypto.h"
 
 int LEN = 128;      //length of ECC key
@@ -15,7 +18,7 @@ RTC_DATA_ATTR byte my_key_private[LEN];
 RTC_DATA_ATTR ecc_key my_key;
 RTC_DATA_ATTR ecc_key server_pub[LEN];
 
-byte server_public_key_bytes[LEN] = fdsfds;
+byte server_public_key_bytes[LEN] = "0xababab";
 char *TAG_CRYPTO = "CRYPTO_MODULE";
 
 void print_bytes(const uint8_t *bytes, int len)
@@ -82,5 +85,5 @@ void encrypt_value(char* message, unsigned char* encrypted, word32 encryptedSz){
     msg = (unsigned char*)message;
     msgLen = (word32)strlen((const char*)msg);
     encryptedSz = sizeof(encrypted);
-    wc_ecc_encrypt(&my_key, &server_pub, msg, msgLen, encrypted, &encryptedSz);
+    //wc_ecc_encrypt(&my_key, &server_pub, msg, msgLen, encrypted, &encryptedSz);
 }

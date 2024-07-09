@@ -22,6 +22,11 @@
 /* This user_settings.h is for Espressif ESP-IDF */
 #include <sdkconfig.h>
 
+/**
+ * Custom.
+*/
+#define HAVE_ECC_ENCRYPT
+
 /* The Espressif sdkconfig will have chipset info.
 **
 ** Possible values:

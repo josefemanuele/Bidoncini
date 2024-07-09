@@ -9,6 +9,7 @@
 #include "headers/distance.h"
 #include "headers/lora.h"
 #include "headers/sleep.h"
+#include "headers/crypto.h"
 
 char *ID = "ABC123";        //ID of the bin
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
