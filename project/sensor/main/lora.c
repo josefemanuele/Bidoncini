@@ -33,7 +33,7 @@ void lora_message_send(char* ID, int distance){
     word32 encryptedSz = sizeof(encrypted);
 	sprintf(distance_in_char, "%d", distance);
 
-	encrypt_value((char*)distance, (word32)strlen(distance_in_char), encrypted, encryptedSz);
+	encrypt_value((char*)distance, (word32)strlen(distance_in_char), encrypted, &encryptedSz);
 	printf("%hhn", encrypted);
 	int txLen = sprintf((char *)buf, "{\"id\": \"%s\", \"distance\": %hhn}", 
 							ID, encrypted);
