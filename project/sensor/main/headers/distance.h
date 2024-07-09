@@ -5,7 +5,7 @@
 #define LOW 0
 #define HIGH 1
 // GPIO pins for the trigger and echo of the distance sensor
-#define TRIG_PIN GPIO_NUM_2
+#define TRIG_PIN GPIO_NUM_4
 #define ECHO_PIN GPIO_NUM_3
 
 // Check if the timeout has expired

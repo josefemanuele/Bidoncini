@@ -7,6 +7,7 @@ project/central_server/certs
 project/gateway/main/certs
 project/sdkconfig.old
 project/dependencies.lock
+**/wolfSSL
 scripts/current.txt
 scripts/plot.png
 .DS_Store

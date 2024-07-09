@@ -1,3 +1,12 @@
 {
-    "idf.adapterTargetName": "esp32s3"
+    "idf.adapterTargetName": "esp32s3",
+    "files.associations": {
+        "sleep.h": "c",
+        "__config": "c",
+        "cstddef": "c",
+        "locale": "c",
+        "string": "c",
+        "crypto.h": "c",
+        "types.h": "c"
+    }
 }

@@ -1,11 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include <esp_err.h>
 #include <time.h>
 
-#include "lora.h"
+#include "headers/lora.h"
+#include "crypto.c"
 #include "../../../components/ra01s/ra01s.h"
 
 char *TAG_LORA = "LORA_MODULE";
@@ -26,18 +28,12 @@ void initialize_lora(){
 void lora_message_send(char* ID, int distance){
     uint8_t buf[256]; // Maximum Payload size of SX1261/62/68 is 255
 
-    //get current time
-	time_t now;
-	char strftime_buf[64];
-	struct tm timeinfo;
-	time(&now);
-	localtime_r(&now, &timeinfo);
-	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-	ESP_LOGI(TAG_LORA, "%s", strftime_buf);
-
     //build the message
+	unsigned char encrypted[256];
+    word32 encryptedSz = sizeof(encrypted);
+	encrypt_value((char*)distance, encrypted, encryptedSz);
 	int txLen = sprintf((char *)buf, "{\"id\": \"%s\", \"distance\": %d}", 
-							ID, distance);
+							ID, encrypted);
 		
 	ESP_LOGI(TAG_LORA, "%d byte packet sent...", txLen);
 
