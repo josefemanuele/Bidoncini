@@ -1,7 +1,7 @@
 #include "driver/rtc_io.h"
 #include "esp_sleep.h"
-#include "headers/sleep.h"
 #include "esp_log.h"
+#include "headers/sleep.h"
 
 char *TAG_SLEEP = "SLEEP_MODULE";
 int sleep_delay;

@@ -7,14 +7,13 @@
 #include <time.h>
 #include "sys/time.h"
 #include "headers/distance.h"
-#include "headers/crypto.h"
 #include "headers/lora.h"
 #include "headers/sleep.h"
 
 char *ID = "ABC123";        //ID of the bin
 char *TAG_MAIN_SENSOR = "MAIN_SENSOR";
-RTC_DATA_ATTR int WAKEUP_DELAY_S = 10;       //time between measurements
-RTC_DATA_ATTR int MEASUREMENT_NUMBER = 0;       //number of measurement since last time has been emptied
+RTC_DATA_ATTR int deep_sleep_timer_s = 10;       //time between measurements
+RTC_DATA_ATTR int measurement_number = 0;       //number of measurement since last time has been emptied
 int EXPECTED_MEASUREMENTS = 4;        //expected number of measurement to do until trash bin is full
 int HEIGHT_BIN_CM = 40;
 
@@ -30,30 +29,30 @@ void task_sensing()
     //check if the operator has emptied the bin
     int cause = get_wakeup_cause();
     if(cause == 2){
-        MEASUREMENT_NUMBER = 0;
+        measurement_number = 0;
         return;
     }
     //measure the distance
     int distance = measure();
     //int distance = 10;
-    MEASUREMENT_NUMBER ++;
+    measurement_number ++;
     //send the info via LoRa
     lora_message_send(ID, distance);
     //check if the bin has fullen up it adjusts the sleep time
     printf("%f", (float)((float)distance/(float)HEIGHT_BIN_CM)*100);
     if (i_am_full(distance)){
-        WAKEUP_DELAY_S = (MEASUREMENT_NUMBER * WAKEUP_DELAY_S) / EXPECTED_MEASUREMENTS;
-        update_deep_sleep_timer(WAKEUP_DELAY_S);
+        deep_sleep_timer_s = (measurement_number * deep_sleep_timer_s) / EXPECTED_MEASUREMENTS;
+        update_deep_sleep_timer(deep_sleep_timer_s);
     }
 }
 
 void app_main(void)
 {
-    setup_deep_sleep(WAKEUP_DELAY_S);
+    setup_deep_sleep(deep_sleep_timer_s);
 
     setup_distance_sensor();
 
-    generate_keys();
+    //generate_keys();
     
     initialize_lora();
     
