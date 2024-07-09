@@ -1,12 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include <esp_err.h>
 #include <time.h>
 #include "sys/time.h"
-#include "driver/distance.c"
-#include "lora/lora.c"
+#include "headers/distance.h"
+#include "headers/crypto.h"
+#include "headers/lora.h"
 #include "headers/sleep.h"
 
 char *ID = "ABC123";        //ID of the bin
@@ -16,7 +18,7 @@ RTC_DATA_ATTR int MEASUREMENT_NUMBER = 0;       //number of measurement since la
 int EXPECTED_MEASUREMENTS = 4;        //expected number of measurement to do until trash bin is full
 int HEIGHT_BIN_CM = 40;
 
-#define i_am_full(distance) (((distance/HEIGHT_BIN_CM)*100) <= (10)) //checks if the bin is full (at 90%)
+#define i_am_full(distance) (((float)((float)distance/(float)HEIGHT_BIN_CM)*100) <= (10)) //checks if the bin is full (at 90%)
 
 
 /**
@@ -25,61 +27,37 @@ int HEIGHT_BIN_CM = 40;
 */
 void task_sensing()
 {
+    //check if the operator has emptied the bin
+    int cause = get_wakeup_cause();
+    if(cause == 2){
+        MEASUREMENT_NUMBER = 0;
+        return;
+    }
     //measure the distance
     int distance = measure();
+    //int distance = 10;
     MEASUREMENT_NUMBER ++;
     //send the info via LoRa
     lora_message_send(ID, distance);
-    //check if the bin has fullen up faster (or later) than what expected and adjust sleep time
-    if (i_am_full(distance) && ((MEASUREMENT_NUMBER <= EXPECTED_MEASUREMENTS / 2) || (MEASUREMENT_NUMBER >= EXPECTED_MEASUREMENTS * 2))){
+    //check if the bin has fullen up it adjusts the sleep time
+    printf("%f", (float)((float)distance/(float)HEIGHT_BIN_CM)*100);
+    if (i_am_full(distance)){
         WAKEUP_DELAY_S = (MEASUREMENT_NUMBER * WAKEUP_DELAY_S) / EXPECTED_MEASUREMENTS;
+        update_deep_sleep_timer(WAKEUP_DELAY_S);
     }
-
-}
-
-/**
- * Performs a "frequency analysis". It checks the fullness of the bin every  30 minutes and sees how many time it takes
- * for the trash bin to be 90% full. It updates the frequency to which take the measurements accordingly
-*/
-void frequency_analysis(){
-    while (1){
-        int distance = measure();
-        MEASUREMENT_NUMBER++;
-        lora_message_send(ID, distance);
-        //check if the bin is at least 90% full
-        if ((distance/HEIGHT_BIN_CM)*100 <= 10){
-            WAKEUP_DELAY_S = (MEASUREMENT_NUMBER * WAKEUP_DELAY_S) / EXPECTED_MEASUREMENTS;     //update the time interval between measurements
-            need_frequency_analysis = false;
-            break;
-        }
-        else {
-            deep_sleep();
-        }  
-    }
-    
-/**
- * performs the deep sleep for a number of seconds indicated by WAKEUP_DELAY_S
-*/
-void deep_sleep(void)
-{
-    // Set deep sleep timer.
-    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_DELAY_S * 1000000));
-    ESP_LOGI(TAG_MAIN_SENSOR, "Going to deep sleep for %d seconds.", WAKEUP_DELAY_S);
-    // Enter deep sleep.
-    esp_deep_sleep_start();
 }
 
 void app_main(void)
 {
-    setup_deep_sleep();
-    while (1)
-    {
-        setup_distance_sensor();
-        
-        initialize_lora();
-        
-        task_sensing();
+    setup_deep_sleep(WAKEUP_DELAY_S);
 
-        deep_sleep();
-    }
+    setup_distance_sensor();
+
+    generate_keys();
+    
+    initialize_lora();
+    
+    task_sensing();
+
+    deep_sleep();
 }

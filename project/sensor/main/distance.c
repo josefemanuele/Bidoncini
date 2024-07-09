@@ -9,12 +9,9 @@
 #include "esp_log.h"
 #include <esp_err.h>
 
-#include "distance.h"
+#include "headers/distance.h"
 
 char *TAG_DISTANCE = "DISTANCE SENSOR";
-
-long duration;
-float distanceCm;
 
 
 void setup_distance_sensor() {
