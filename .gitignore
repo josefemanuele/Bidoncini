@@ -10,3 +10,4 @@ project/dependencies.lock
 scripts/current.txt
 scripts/plot.png
 .DS_Store
+project/wolfssl-5.7.0
