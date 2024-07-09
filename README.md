@@ -84,6 +84,32 @@ To let the sensor know that it has been emptied, the operator will press a butto
 
 ## Energy consumption
 
+To measure energy consumption we used the INA219 module. Using an external arduino, we were able to query the module and measure the current flowing through the alimentation cable.
+
+We plotted the measurements for the activities of the endpoint. The endpoint is the only device deployed in the wild. Gateway and central server should be installed in safe and controlled environments, with stable current input.
+
+![Consumption full taskdelay](img/consumption_full_taskdelay.png)
+
+With the use of serial tool [miniterm](https://pyserial.readthedocs.io/en/latest/tools.html) we were able to get the current values from the arduino to a text file. The pyhton script under 'scripts' plots this values into the images shown. The other python script sums up the current values, giving us a indication of the current spent under a specific duty cycle. It also tell us how long the duty cycle lasted, in milliseconds.
+
+As explained, the current consumption on active sleep, e.g. task delay, is:
+
+**mAmperes drawn:** 25707.20000000001
+
+**duty cycle in ms:** 321
+
+**average mA:** 80.08473520249225
+
+![Consumption full deep sleep](img/consumption_full_deep.png)
+
+The current consumption for the endpoint on deep sleep instead is:
+
+**mAmperes drawn:** 22728.700000000004
+
+**duty cycle in ms:** 265
+
+**average mA:** 85.76867924528304
+
 ## Conclusions
 
 ## Credits
@@ -94,6 +120,10 @@ To let the sensor know that it has been emptied, the operator will press a butto
 
 [Deep Sleep ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/system/sleep_modes.html)
 
+[Lora on Esp32s3](https://github.com/nopnop2002/esp-idf-sx126x)
+
 [Encryption on Esp32](https://github.com/StefanoMilani/FreeRTOS-security-tutorial/tree/master)
+
+[Energy consumption with INA219](https://learn.adafruit.com/adafruit-ina219-current-sensor-breakout/arduino-code)
 
 
