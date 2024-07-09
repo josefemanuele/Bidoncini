@@ -66,7 +66,11 @@ With all the values in the database then it is possible to compute the optimal p
 Considering the MQTT connection secured by asymmetric encryption, both between the gateway and the server, and the server and aws cloud, the only open communication was the Lora link between the endpoints.
 We have thought of implementing a cryptographic protocol on top of the Lora communication, to ensure confidentiality of the packets, as well as identification of the endpoint from the gateway.
 
-The protocol consists of the use of Elliptic Curve Cryptography to produce pair of keys to encrypt the messages. Then the packet forwarded from the endpoint to the gateway, containing the sensor value, becomes { endpoint_id; encrypted(sensor_value) }. At time of setup, the endpoint gets configured with the public key of the gateway. The endpoint produces its own pair of keys, saves its private key in memory, and prints out the public key. Through a secure and external communication the public key of the newly installed device gets uploaded to the gateway, eg. added to a database available to the gateway. In such a way, the gateway, when receiving a packet, can read the endpoint id, find its public key in its id-public_key storage, and decrpt the message. Now, the gateway is sure that the message was actually sent by the declared endpoint, eg. the message cannot be spoofed, and the comunication is secured from eavesdropping, eg. confidential. 
+[Insert image scheme of encryption protocol]
+
+The protocol consists of the use of [Elliptic Curve Cryptography](https://www.wolfssl.com/documentation/manuals/wolfssl/group__Curve25519.html) to produce pair of keys to encrypt the messages. Then the packet forwarded from the endpoint to the gateway, containing the sensor value, becomes { endpoint_id; encrypted(sensor_value) }. At time of setup, the endpoint gets configured with the public key of the gateway. The endpoint produces its own pair of keys, saves its private key in memory, and prints out the public key. Through a [secure and external communication](https://esp32io.com/tutorials/esp32-mysql?utm_content=cmp-true) the public key of the newly installed device gets uploaded to the gateway, eg. added to a database available to the gateway. In such a way, the gateway, when receiving a packet, can read the endpoint id, find its public key in its id-public_key storage, and decrypt the message. Now, the gateway is sure that the message was actually sent by the declared endpoint, eg. the message cannot be spoofed, and the comunication is secured from eavesdropping, eg. confidential. 
+
+In case of physical capture of the endpoint, the communication is one-way, endpoint to gateway, so an adversary could only forge fake messages. Spoofed messages, signed with a spoofed id, would get dropped since the decryption would not output any sensible information at the gateway point. A flood of messages instead could be stopped by then deactivating the respective id.
 
 ## Frequency analysis
 *How to understand which is the right time interval between measurements?* This is a tough question because on one hand we want to take measurements very often to have an higher granularity and so more probability to collect the trash at the right time, on the other hand we want to measure the less possible to save energy.
@@ -89,5 +93,7 @@ To let the sensor know that it has been emptied, the operator will press a butto
 [Push button logic](https://esp32tutorials.com/esp32-push-button-esp-idf-digital-input/?authuser=0)
 
 [Deep Sleep ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/system/sleep_modes.html)
+
+[Encryption on Esp32](https://github.com/StefanoMilani/FreeRTOS-security-tutorial/tree/master)
 
 
