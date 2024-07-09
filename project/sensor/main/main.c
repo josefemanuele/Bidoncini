@@ -53,7 +53,7 @@ void app_main(void)
 
     setup_distance_sensor();
 
-    //generate_keys();
+    generate_keys();
     
     initialize_lora();
     

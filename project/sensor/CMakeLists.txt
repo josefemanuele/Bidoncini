@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.5)
 
 set(EXTRA_COMPONENT_DIRS components/ra01s)
 
-set(ENV{WOLFSSL_ROOT}  "/Users/macbookpro/josef/chatzigiannakis-vitaletti/projects/bidoncini/project/wolfssl-5.7.0")
+set(ENV{WOLFSSL_ROOT}  "/Users/smndrs/Documents/EngineeringCS/IoT/bidoncini/project/wolfssl-5.7.0")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(bidoncini_proj)

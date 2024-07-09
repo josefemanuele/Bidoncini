@@ -96,6 +96,8 @@
 #define HAVE_ED25519
 
 #define HAVE_ECC
+#define ECC_USER_CURVES
+#define HAVE_ECC_ENCRYPT
 #define HAVE_CURVE25519
 #define CURVE25519_SMALL
 #define HAVE_ED25519
