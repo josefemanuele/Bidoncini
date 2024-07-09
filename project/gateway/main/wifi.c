@@ -10,7 +10,7 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
-#include "wifi.h"
+#include "include/wifi.h"
 
 char *TAG_WIFI = "WIFI";
 

@@ -11,4 +11,4 @@ set(ENV{WOLFSSL_ROOT}  "/Users/smndrs/Documents/EngineeringCS/IoT/bidoncini/proj
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(bidoncini_proj)
 
-target_add_binary_data(bidoncini_proj.elf "main/mqtt/mqtt_mosquitto_io.pem" TEXT)
+target_add_binary_data(bidoncini_proj.elf "mqtt_mosquitto_io.pem" TEXT)

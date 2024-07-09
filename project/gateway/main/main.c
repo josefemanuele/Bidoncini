@@ -11,10 +11,9 @@
 #include "mqtt_client.h"
 #include "wolfssl/wolfcrypt/types.h"
 
-#include "wifi/wifi.h"
-#include "mqtt/mqtt.h"
-#include "lora/lora.h"
-#include "crypto/crypto.h"
+#include "include/wifi.h"
+#include "include/mqtt.h"
+#include "include/lora.h"
 #include "../../components/ra01s/ra01s.h"
 
 #define LORA_FREQUENCY 868300000
