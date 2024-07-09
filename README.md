@@ -63,6 +63,10 @@ AWS IoT Core has a rule that takes the packets and save the triples (ID, distanc
 With all the values in the database then it is possible to compute the optimal path for the trash collection.
 
 ## Security
+Considering the MQTT connection secured by asymmetric encryption, both between the gateway and the server, and the server and aws cloud, the only open communication was the Lora link between the endpoints.
+We have thought of implementing a cryptographic protocol on top of the Lora communication, to ensure confidentiality of the packets, as well as identification of the endpoint from the gateway.
+
+The protocol consists of the use of Elliptic Curve Cryptography to produce pair of keys to encrypt the messages. Then the packet forwarded from the endpoint to the gateway, containing the sensor value, becomes { endpoint_id; encrypted(sensor_value) }. At time of setup, the endpoint gets configured with the public key of the gateway. The endpoint produces its own pair of keys, saves its private key in memory, and prints out the public key. Through a secure and external communication the public key of the newly installed device gets uploaded to the gateway, eg. added to a database available to the gateway. In such a way, the gateway, when receiving a packet, can read the endpoint id, find its public key in its id-public_key storage, and decrpt the message. Now, the gateway is sure that the message was actually sent by the declared endpoint, eg. the message cannot be spoofed, and the comunication is secured from eavesdropping, eg. confidential. 
 
 ## Frequency analysis
 *How to understand which is the right time interval between measurements?* This is a tough question because on one hand we want to take measurements very often to have an higher granularity and so more probability to collect the trash at the right time, on the other hand we want to measure the less possible to save energy.
