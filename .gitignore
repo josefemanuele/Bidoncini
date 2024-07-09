@@ -5,4 +5,4 @@
 **/dependencies.lock
 project/central_server/connect_aws
 scripts/current.txt
-scripts/plot.png
+scripts/*.png
