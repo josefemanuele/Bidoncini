@@ -115,7 +115,7 @@ Hence the average consumption of a full cycle becomes:
 
 The duty cycle is so small relative to the time under sleep that its contribution to the consumption is negligible.
 
-![Consumption full deep sleep](img/consumption_full_deep.png)
+![Consumption full deep sleep](img/consumption_full_deep.png
 
 The current consumption for the endpoint on deep sleep instead is:
 
