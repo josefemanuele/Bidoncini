@@ -165,6 +165,6 @@ It was fun to learn different aspects of hardware development. Putting hands int
 
 [Energy consumption with INA219](https://learn.adafruit.com/adafruit-ina219-current-sensor-breakout/arduino-code)
 
-[Battery lif math](https://www.omnicalculator.com/other/battery-life#)
+[Battery life math](https://www.omnicalculator.com/other/battery-life#)
 
 
