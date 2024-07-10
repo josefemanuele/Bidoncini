@@ -25,6 +25,11 @@ The aim of this project is to develop a network of IOT devices monitoring the us
 
 # Project development
 
+## Improvements over first project draft.
+- Added energy harvesting system.
+- Added cryptographic protocol for secure Lora communication.
+- Simplified frequency analysis.
+
 ## Energy harvesting
 
 We equipped out project with an energy harvesting system making use of solar panels. 
