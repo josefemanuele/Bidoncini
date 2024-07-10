@@ -129,11 +129,6 @@ During the sleep cycle the device consumes an average of 13.6 mA.
 
 The same consideration of the small impact of the duty cycle on the consumption is valid here too.
 
-It was also interesting to note how by measuring the current conumption through the usb cable the measurements change. It seemes like by powering up the esp32 board by usb cable, some components dissipated some of the current, resulting in a greater consumption.
-
-![Consumption full taskdelay with usb](img/consumption_full_taskdelay_usb.png)
-![Consumption full deep sleep with usb](img/consumption_full_deep_usb.png)
-
 The selected battery has a capcity of 800 mAh, a max Voltage of 4.2, and cut off discharge Voltage of 2.75. [Battery Datasheet](https://www.power-xtra.com/uploads/content/900600503251-dspdf.pdf?v=1561451363)
 
 The consumable energy is:
@@ -143,6 +138,10 @@ The consumable energy is:
 - about ( 282 mAh / 46 mA ) = 6.13 h for active sleep.
 
 - about ( 282 mAh / 14 mA ) = 20.14 h for deep sleep.
+It was also interesting to note how by measuring the current conumption through the usb cable the measurements change. It seemes like by powering up the esp32 board by usb cable, some components dissipated some of the current, resulting in a greater consumption.
+
+![Consumption full taskdelay with usb](img/consumption_full_taskdelay_usb.png)
+![Consumption full deep sleep with usb](img/consumption_full_deep_usb.png)
 
 With the energy harvesting system implemented in our project, we have a constant flow of 100 mA to recharge the battery during sun time. The charged battery would not be able to withstand the dark hours, if the firmware didn't makeuse of the deep sleep functionality. Thanks to deep sleep, the battery life can go up to a 228% increase. Battery life is more than three-fold.
 
