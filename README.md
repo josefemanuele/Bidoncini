@@ -92,7 +92,7 @@ To measure energy consumption we used the INA219 module. Using an external ardui
 
 We plotted the measurements for the activities of the endpoint. The endpoint is the only device deployed in the wild. Gateway and central server should be installed in safe and controlled environments, with stable current input.
 
-![Consumption full taskdelay](img/consumption_full_taskdelay.png)
+![Consumption full taskdelay](img/consumption_full_delay.png)
 
 With the use of serial tool [miniterm](https://pyserial.readthedocs.io/en/latest/tools.html) we were able to get the current values from the arduino to a text file. The pyhton script under 'scripts' plots this values into the images shown. The other python script sums up the current values, giving us a indication of the current spent under a specific duty cycle. It also tell us how long the duty cycle lasted, in milliseconds.
 
