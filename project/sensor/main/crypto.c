@@ -20,7 +20,7 @@ byte my_key_private[LEN];
 RTC_DATA_ATTR bool key_generated = false;
 RTC_DATA_ATTR ecc_key my_key;
 RTC_DATA_ATTR ecc_key server_pub;
-RTC_DATA_ATTR ecEncCtx* ctx;
+
 
 byte server_public_key_bytes[LEN] = {0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0xE8, 0x03, 0x3C, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0x01, 0x00,
@@ -97,17 +97,18 @@ void generate_keys(){
     wc_ecc_init(&my_key);
     wc_ecc_import_x963(my_public_key_bytes, sizeof(my_public_key_bytes), &my_key);
 
-    //initialize EcEncCtx
-    WC_RNG rng;
-    ecEncCtx* ctx;      //ECC context object
-    ESP_LOGI(TAG_CRYPTO, "Initializing ecEncCtx");
-    wc_InitRng(&rng);
-    ctx = wc_ecc_ctx_new(REQ_RESP_CLIENT, &rng);
-    wc_ecc_ctx_set_algo(ctx, ecAES_128_CTR, ecHKDF_SHA256, ecHMAC_SHA256);
+   
 }
 
 void encrypt_value(char* message, word32 msgLen, unsigned char* encrypted, word32* encryptedSz){
     const unsigned char* msg; 
     msg = (unsigned char*)message;
+    //initialize EcEncCtx
+    WC_RNG rng;
+    ecEncCtx* ctx;
+    ESP_LOGI(TAG_CRYPTO, "Initializing ecEncCtx");
+    wc_InitRng(&rng);
+    ctx = wc_ecc_ctx_new(REQ_RESP_CLIENT, &rng);
+    wc_ecc_ctx_set_algo(ctx, ecAES_128_CTR, ecHKDF_SHA256, ecHMAC_SHA256);
     wc_ecc_encrypt(&my_key, &server_pub, msg, msgLen, encrypted, encryptedSz, ctx);
 }
