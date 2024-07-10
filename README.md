@@ -111,11 +111,11 @@ Considering a sensing operation every 2 hours, the duty cycle has a proportion r
 0.322 / (2 * 60) = 0.003
 
 Hence the average consumption of a full cycle becomes:
-64.7 * 0.003 + 46.7 * 0.997 = 46.754
+64.9 * 0.003 + 46.7 * 0.997 = 46.754
 
 The duty cycle is so small relative to the time under sleep that its contribution to the consumption is negligible.
 
-![Consumption full deep sleep](img/consumption_full_deep.png)
+![Consumption full deep sleep](img/consumption_full_deep_.png)
 
 The current consumption for the endpoint on deep sleep instead is:
 
@@ -129,8 +129,6 @@ During the sleep cycle the device consumes an average of 13.6 mA.
 
 The same consideration of the small impact of the duty cycle on the consumption is valid here too.
 
-
-
 The selected battery has a capcity of 800 mAh, a max Voltage of 4.2, and cut off discharge Voltage of 2.75. [Battery Datasheet](https://www.power-xtra.com/uploads/content/900600503251-dspdf.pdf?v=1561451363)
 
 The consumable energy is:
@@ -141,10 +139,17 @@ The consumable energy is:
 
 - about ( 282 mAh / 14 mA ) = 20.14 h for deep sleep.
 
-
 With the energy harvesting system implemented in our project, we have a constant flow of 100 mA to recharge the battery during sun time. The charged battery would not be able to withstand the dark hours, if the firmware didn't makeuse of the deep sleep functionality. Thanks to deep sleep, the battery life can go up to a 228% increase. Battery life is more than three-fold.
 
 As per the charging module [datasheet](https://dlnmh9ip6v2uc.cloudfront.net/datasheets/Prototyping/TP4056.pdf), the battery would take around 1.75 hours to fully charge from fully discharged, with a max current of 800 mAh. Our current system has a max charging current of 100 mA. Charging current could be improved by placing more solar panels in parallel, or by using better efficiency panels. Even though, the supply of 100 mA is over the average estimated consumption of our system. As built, the system could technically go on forever. Naturally, battery decay would eventually stop the experiment.
+
+It was also interesting to note how by measuring the current conumption through the usb cable the measurements change. It seemes like by powering up the esp32 board by usb cable, some components dissipated some of the current, resulting in a greater consumption.
+
+![Consumption full taskdelay with usb](img/consumption_full_taskdelay_usb.png)
+![Consumption full deep sleep with usb](img/consumption_full_deep_usb.png)
+
+## Conclusions
+It was fun to learn different aspects of hardware development. Putting hands into firmware set up, combining different libraries, reading through endless documentation. At the end, we managed to build an internet of things system, connected to the cloud, forwarding sensor values, encrypting the communication, and making all of this autonomously powered through solar panels.
 
 ## Credits
 
@@ -160,6 +165,6 @@ As per the charging module [datasheet](https://dlnmh9ip6v2uc.cloudfront.net/data
 
 [Energy consumption with INA219](https://learn.adafruit.com/adafruit-ina219-current-sensor-breakout/arduino-code)
 
-[Battery lif math](https://www.omnicalculator.com/other/battery-life#)
+[Battery life math](https://www.omnicalculator.com/other/battery-life#)
 
 
