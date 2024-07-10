@@ -138,6 +138,7 @@ The consumable energy is:
 - about ( 282 mAh / 46 mA ) = 6.13 h for active sleep.
 
 - about ( 282 mAh / 14 mA ) = 20.14 h for deep sleep.
+
 It was also interesting to note how by measuring the current conumption through the usb cable the measurements change. It seemes like by powering up the esp32 board by usb cable, some components dissipated some of the current, resulting in a greater consumption.
 
 ![Consumption full taskdelay with usb](img/consumption_full_taskdelay_usb.png)
