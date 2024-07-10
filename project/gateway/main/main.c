@@ -9,10 +9,12 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
+#include "wolfssl/wolfcrypt/types.h"
 
-#include "wifi/wifi.h"
-#include "mqtt/mqtt.h"
-#include "lora/lora.h"
+#include "include/wifi.h"
+#include "include/mqtt.h"
+#include "include/lora.h"
+#include "include/crypto.h"
 #include "../../components/ra01s/ra01s.h"
 
 #define LORA_FREQUENCY 868300000
@@ -39,7 +41,9 @@ void  initialization(){
     mqtt_app_start();
     ESP_LOGI(TAG_MAIN, "MQTT initialized");
     //initialize LoRa
-   initialize_lora();
+    initialize_lora();
+    //setup ECC keys
+    import_keys();
 }
 
 /*
@@ -52,6 +56,11 @@ void task_receiver_lora(void *pvParameters)
 	while(1) {
     //wait to receive a message
     lora_receive_messages(buf, sizeof(buf));
+
+    //decrypt the message
+    byte decrypted[256];
+    word32 decryptedSz = (word32) sizeof(decrypted);
+    decrypt_message(buf, decrypted, &decryptedSz);
 
     //publish on MQTT
     mqtt_publish((char *)buf);

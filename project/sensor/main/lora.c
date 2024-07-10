@@ -5,7 +5,9 @@
 #include <esp_err.h>
 #include <time.h>
 #include "headers/lora.h"
+#include "headers/crypto.h"
 #include "../../../components/ra01s/ra01s.h"
+#include "wolfssl/wolfcrypt/types.h"
 
 char *TAG_LORA = "LORA_MODULE";
 
@@ -24,24 +26,22 @@ void initialize_lora(){
 
 void lora_message_send(char* ID, int distance){
     uint8_t buf[256]; // Maximum Payload size of SX1261/62/68 is 255
-
-    //get current time
-	time_t now;
-	char strftime_buf[64];
-	struct tm timeinfo;
-	time(&now);
-	localtime_r(&now, &timeinfo);
-	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-	ESP_LOGI(TAG_LORA, "%s", strftime_buf);
+	char distance_in_char[4];
 
     //build the message
+	unsigned char encrypted[256];
+    word32 encryptedSz = sizeof(encrypted);
+	sprintf(distance_in_char, "%d", distance);
+
 	int txLen = sprintf((char *)buf, "{\"id\": \"%s\", \"distance\": %d}", 
 							ID, distance);
+	LoRaSend(buf, txLen, SX126x_TXMODE_SYNC);
+	encrypt_value((char*)buf, (word32)strlen((char*)buf), encrypted, &encryptedSz);
 		
 	ESP_LOGI(TAG_LORA, "%d byte packet sent...", txLen);
 
 	// Wait for transmission to complete
-	if (LoRaSend(buf, txLen, SX126x_TXMODE_SYNC) == false) {
+	if (LoRaSend(encrypted, encryptedSz, SX126x_TXMODE_SYNC) == false) {
 		ESP_LOGE(TAG_LORA,"LoRaSend fail");
 	}
 	ESP_LOGI(TAG_LORA, "LoRa packet sent");
