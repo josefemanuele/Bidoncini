@@ -10,6 +10,8 @@
 #include "esp_event.h"
 #include "esp_log.h"
 
+#include "include/crypto.h"
+
 #define LEN 128
 char *TAG_CRYPTO = "CRYPTO_MODULE";
 

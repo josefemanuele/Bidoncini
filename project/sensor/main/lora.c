@@ -33,15 +33,15 @@ void lora_message_send(char* ID, int distance){
     word32 encryptedSz = sizeof(encrypted);
 	sprintf(distance_in_char, "%d", distance);
 
-	encrypt_value((char*)distance, (word32)strlen(distance_in_char), encrypted, &encryptedSz);
-	printf("%hhn", encrypted);
-	int txLen = sprintf((char *)buf, "{\"id\": \"%s\", \"distance\": %hhn}", 
-							ID, encrypted);
+	int txLen = sprintf((char *)buf, "{\"id\": \"%s\", \"distance\": %d}", 
+							ID, distance);
+	LoRaSend(buf, txLen, SX126x_TXMODE_SYNC);
+	encrypt_value((char*)buf, (word32)strlen((char*)buf), encrypted, &encryptedSz);
 		
 	ESP_LOGI(TAG_LORA, "%d byte packet sent...", txLen);
 
 	// Wait for transmission to complete
-	if (LoRaSend(buf, txLen, SX126x_TXMODE_SYNC) == false) {
+	if (LoRaSend(encrypted, encryptedSz, SX126x_TXMODE_SYNC) == false) {
 		ESP_LOGE(TAG_LORA,"LoRaSend fail");
 	}
 	ESP_LOGI(TAG_LORA, "LoRa packet sent");

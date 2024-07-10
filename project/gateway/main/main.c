@@ -14,6 +14,7 @@
 #include "include/wifi.h"
 #include "include/mqtt.h"
 #include "include/lora.h"
+#include "include/crypto.h"
 #include "../../components/ra01s/ra01s.h"
 
 #define LORA_FREQUENCY 868300000
@@ -59,7 +60,7 @@ void task_receiver_lora(void *pvParameters)
     //decrypt the message
     byte decrypted[256];
     word32 decryptedSz = (word32) sizeof(decrypted);
-    decrypt_message(buf, decrypted, decryptedSz);
+    decrypt_message(buf, decrypted, &decryptedSz);
 
     //publish on MQTT
     mqtt_publish((char *)buf);
