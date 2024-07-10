@@ -66,11 +66,13 @@ With all the values in the database then it is possible to compute the optimal p
 Considering the MQTT connection secured by asymmetric encryption, both between the gateway and the server, and the server and aws cloud, the only open communication was the Lora link between the endpoints.
 We have thought of implementing a cryptographic protocol on top of the Lora communication, to ensure confidentiality of the packets, as well as identification of the endpoint from the gateway.
 
-[Insert image scheme of encryption protocol]
+![Encryption protocol](img/encryption_protocol.jpg)
 
 The protocol consists of the use of [Elliptic Curve Cryptography](https://www.wolfssl.com/documentation/manuals/wolfssl/group__Curve25519.html) to produce pair of keys to encrypt the messages. Then the packet forwarded from the endpoint to the gateway, containing the sensor value, becomes { endpoint_id; encrypted(sensor_value) }. At time of setup, the endpoint gets configured with the public key of the gateway. The endpoint produces its own pair of keys, saves its private key in memory, and prints out the public key. Through a [secure and external communication](https://esp32io.com/tutorials/esp32-mysql?utm_content=cmp-true) the public key of the newly installed device gets uploaded to the gateway, eg. added to a database available to the gateway. In such a way, the gateway, when receiving a packet, can read the endpoint id, find its public key in its id-public_key storage, and decrypt the message. Now, the gateway is sure that the message was actually sent by the declared endpoint, eg. the message cannot be spoofed, and the comunication is secured from eavesdropping, eg. confidential. 
 
 In case of physical capture of the endpoint, the communication is one-way, endpoint to gateway, so an adversary could only forge fake messages. Spoofed messages, signed with a spoofed id, would get dropped since the decryption would not output any sensible information at the gateway point. A flood of messages instead could be stopped by then deactivating the respective id.
+
+We developed such encryption protocol on top of the lora communication makeing use of the [WolfSSL library](https://www.wolfssl.com).
 
 ## Frequency analysis
 *How to understand which is the right time interval between measurements?* This is a tough question because on one hand we want to take measurements very often to have an higher granularity and so more probability to collect the trash at the right time, on the other hand we want to measure the less possible to save energy.
@@ -86,6 +88,8 @@ To let the sensor know that it has been emptied, the operator will press a butto
 
 To measure energy consumption we used the INA219 module. Using an external arduino, we were able to query the module and measure the current flowing through the alimentation cable.
 
+![INA219 setup](img/ina_setup.jpg)
+
 We plotted the measurements for the activities of the endpoint. The endpoint is the only device deployed in the wild. Gateway and central server should be installed in safe and controlled environments, with stable current input.
 
 ![Consumption full taskdelay](img/consumption_full_taskdelay.png)
@@ -94,23 +98,53 @@ With the use of serial tool [miniterm](https://pyserial.readthedocs.io/en/latest
 
 As explained, the current consumption on active sleep, e.g. task delay, is:
 
-**mAmperes drawn:** 25707.20000000001
+**mAmperes\*ms drawn:** 20899.099999999984
 
-**duty cycle in ms:** 321
+**duty cycle in ms:** 322
 
-**average mA:** 80.08473520249225
+**average mA:** 64.9040372670807
+
+During the sleep cycle the device consumes a fixed value of around 46.7 mA.
+
+
+Considering a sensing operation every 2 hours, the duty cycle has a proportion relative to the sleep cycle of:
+0.322 / (2 * 60) = 0.003
+
+Hence the average consumption of a full cycle becomes:
+64.7 * 0.003 + 46.7 * 0.997 = 46.754
+
+The duty cycle is so small relative to the time under sleep that its contribution to the consumption is negligible.
 
 ![Consumption full deep sleep](img/consumption_full_deep.png)
 
 The current consumption for the endpoint on deep sleep instead is:
 
-**mAmperes drawn:** 22728.700000000004
+**mAmperes\*ms drawn:** 18697.60000000001
 
 **duty cycle in ms:** 265
 
-**average mA:** 85.76867924528304
+**average mA:** 70.5569811320755
 
-## Conclusions
+During the sleep cycle the device consumes an average of 13.6 mA.
+
+The same consideration of the small impact of the duty cycle on the consumption is valid here too.
+
+
+
+The selected battery has a capcity of 800 mAh, a max Voltage of 4.2, and cut off discharge Voltage of 2.75. [Battery Datasheet](https://www.power-xtra.com/uploads/content/900600503251-dspdf.pdf?v=1561451363)
+
+The consumable energy is:
+
+800 mAh * ( 1 - ( 2.75 V / 4.2 V ) ) = 282 mAh
+
+- about ( 282 mAh / 46 mA ) = 6.13 h for active sleep.
+
+- about ( 282 mAh / 14 mA ) = 20.14 h for deep sleep.
+
+
+With the energy harvesting system implemented in our project, we have a constant flow of 100 mA to recharge the battery during sun time. The charged battery would not be able to withstand the dark hours, if the firmware didn't makeuse of the deep sleep functionality. Thanks to deep sleep, the battery life can go up to a 228% increase. Battery life is more than three-fold.
+
+As per the charging module [datasheet](https://dlnmh9ip6v2uc.cloudfront.net/datasheets/Prototyping/TP4056.pdf), the battery would take around 1.75 hours to fully charge from fully discharged, with a max current of 800 mAh. Our current system has a max charging current of 100 mA. Charging current could be improved by placing more solar panels in parallel, or by using better efficiency panels. Even though, the supply of 100 mA is over the average estimated consumption of our system. As built, the system could technically go on forever. Naturally, battery decay would eventually stop the experiment.
 
 ## Credits
 
@@ -125,5 +159,7 @@ The current consumption for the endpoint on deep sleep instead is:
 [Encryption on Esp32](https://github.com/StefanoMilani/FreeRTOS-security-tutorial/tree/master)
 
 [Energy consumption with INA219](https://learn.adafruit.com/adafruit-ina219-current-sensor-breakout/arduino-code)
+
+[Battery lif math](https://www.omnicalculator.com/other/battery-life#)
 
 
